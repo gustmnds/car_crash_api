@@ -1,0 +1,32 @@
+version: '2'
+networks:
+  app_network:
+    driver: bridge
+services:
+  postgresdb:
+    image: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: car_crash
+    networks:
+      app_network:
+        aliases:
+        - postgresdb
+
+  car_api:
+    image: node
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgresdb
+    networks:
+      - app_network
+    working_dir: /app
+    volumes:
+      - .:/app
+      - ./node_modules:/app/node_modules
+    command:  >
+      bash -c "npm i
+      && npm run typeorm migration:run
+      && npm run start"
